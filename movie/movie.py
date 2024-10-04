@@ -14,9 +14,14 @@ movie = ObjectType('Movie')
 query.set_field('movie_with_id', r.movie_with_id)
 actor = ObjectType('Actor')
 movie.set_field('actors', r.resolve_actors_in_movie)
+query.set_field('movies_by_title',r.movies_by_title)
+query.set_field('movies_sorted_by_rate', r.movies_sorted_by_rate)
 
 mutation = MutationType()
 mutation.set_field('update_movie_rate', r.update_movie_rate)
+mutation.set_field('add_movie',r.add_movie)
+mutation.set_field('del_a_movie',r.del_a_movie)
+mutation.set_field('update_director_movie',r.update_director_movie)
 schema = make_executable_schema(type_defs, movie, query, mutation)
 
 # root message
