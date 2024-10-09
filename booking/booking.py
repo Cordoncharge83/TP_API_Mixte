@@ -8,7 +8,14 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def __init__(self):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
-            self.db = json.load(jsf)["schedule"]
+            self.db = json.load(jsf)["bookings"]
+    
+    def GetBookingForUser(self, request, context):
+        for booking in self.db : 
+            if booking["userid"] == request.id :
+                print("Booking Found !")
+                return booking_pb2.BookingData(userid = booking["userid"], dates = booking["dates"] )
+        return booking_pb2.BookingData(userid = "", dates = "" )
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
