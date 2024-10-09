@@ -1,0 +1,41 @@
+type Query {
+  get_movies_per_rating: [Movie]
+  get_movies_available_at_date(_date: String): [Movie]
+  get_booking_made(_username: String): [Booking]
+}
+
+type Mutation {
+  book_the_movie: Booking
+}
+
+type User {
+  id: String!
+  name: String!
+  last_active: Int!
+}
+
+type Actor {
+  id: String!
+  firstname: String!
+  lastname: String!
+  birthyear: Int!
+  films: [String!]
+}
+
+type Movie {
+  id: String!
+  title: String!
+  director: String!
+  rating: Float!
+  actors: [Actor]
+}
+
+type Booking {
+  userid: String!
+  dates: [Dates]
+}
+
+type Dates {
+  date: String!
+  movies: [String]!
+}
