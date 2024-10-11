@@ -34,25 +34,36 @@ class BookingStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetBookingForUser = channel.unary_stream(
+        self.GetAllBookings = channel.unary_unary(
+                '/Booking/GetAllBookings',
+                request_serializer=booking__pb2.Void.SerializeToString,
+                response_deserializer=booking__pb2.AllBookings.FromString,
+                _registered_method=True)
+        self.GetBookingForUser = channel.unary_unary(
                 '/Booking/GetBookingForUser',
                 request_serializer=booking__pb2.UserId.SerializeToString,
-                response_deserializer=booking__pb2.BookingData.FromString,
+                response_deserializer=booking__pb2.BookingsUser.FromString,
                 _registered_method=True)
         self.AddBookingByUser = channel.unary_unary(
                 '/Booking/AddBookingByUser',
-                request_serializer=booking__pb2.UserId.SerializeToString,
-                response_deserializer=booking__pb2.BookingData.FromString,
+                request_serializer=booking__pb2.EntryAddBooking.SerializeToString,
+                response_deserializer=booking__pb2.BookingsUser.FromString,
                 _registered_method=True)
-        self.GetMovieAtDate = channel.unary_stream(
+        self.GetMovieAtDate = channel.unary_unary(
                 '/Booking/GetMovieAtDate',
-                request_serializer=booking__pb2.Date.SerializeToString,
-                response_deserializer=booking__pb2.MovieData.FromString,
+                request_serializer=booking__pb2.DateB.SerializeToString,
+                response_deserializer=booking__pb2.ScheduleB.FromString,
                 _registered_method=True)
 
 
 class BookingServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def GetAllBookings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def GetBookingForUser(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -75,20 +86,25 @@ class BookingServicer(object):
 
 def add_BookingServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetBookingForUser': grpc.unary_stream_rpc_method_handler(
+            'GetAllBookings': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllBookings,
+                    request_deserializer=booking__pb2.Void.FromString,
+                    response_serializer=booking__pb2.AllBookings.SerializeToString,
+            ),
+            'GetBookingForUser': grpc.unary_unary_rpc_method_handler(
                     servicer.GetBookingForUser,
                     request_deserializer=booking__pb2.UserId.FromString,
-                    response_serializer=booking__pb2.BookingData.SerializeToString,
+                    response_serializer=booking__pb2.BookingsUser.SerializeToString,
             ),
             'AddBookingByUser': grpc.unary_unary_rpc_method_handler(
                     servicer.AddBookingByUser,
-                    request_deserializer=booking__pb2.UserId.FromString,
-                    response_serializer=booking__pb2.BookingData.SerializeToString,
+                    request_deserializer=booking__pb2.EntryAddBooking.FromString,
+                    response_serializer=booking__pb2.BookingsUser.SerializeToString,
             ),
-            'GetMovieAtDate': grpc.unary_stream_rpc_method_handler(
+            'GetMovieAtDate': grpc.unary_unary_rpc_method_handler(
                     servicer.GetMovieAtDate,
-                    request_deserializer=booking__pb2.Date.FromString,
-                    response_serializer=booking__pb2.MovieData.SerializeToString,
+                    request_deserializer=booking__pb2.DateB.FromString,
+                    response_serializer=booking__pb2.ScheduleB.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -102,6 +118,33 @@ class Booking(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
+    def GetAllBookings(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/Booking/GetAllBookings',
+            booking__pb2.Void.SerializeToString,
+            booking__pb2.AllBookings.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def GetBookingForUser(request,
             target,
             options=(),
@@ -112,12 +155,12 @@ class Booking(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
             '/Booking/GetBookingForUser',
             booking__pb2.UserId.SerializeToString,
-            booking__pb2.BookingData.FromString,
+            booking__pb2.BookingsUser.FromString,
             options,
             channel_credentials,
             insecure,
@@ -143,8 +186,8 @@ class Booking(object):
             request,
             target,
             '/Booking/AddBookingByUser',
-            booking__pb2.UserId.SerializeToString,
-            booking__pb2.BookingData.FromString,
+            booking__pb2.EntryAddBooking.SerializeToString,
+            booking__pb2.BookingsUser.FromString,
             options,
             channel_credentials,
             insecure,
@@ -166,12 +209,12 @@ class Booking(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
             '/Booking/GetMovieAtDate',
-            booking__pb2.Date.SerializeToString,
-            booking__pb2.MovieData.FromString,
+            booking__pb2.DateB.SerializeToString,
+            booking__pb2.ScheduleB.FromString,
             options,
             channel_credentials,
             insecure,
