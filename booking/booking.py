@@ -20,13 +20,15 @@ import json
 #     server.wait_for_termination()
 
 def get_schedule_by_date(stub,date):
+    """return the schedule at the date date"""
     schedule = stub.GetMoviesByDate(date)
     print("schedule : ", schedule.movies)
 
 def get_all_schedule(stub):
+    """Return all the schedule"""
     empty = showtime_pb2.Empty()
     schedules = stub.GetSchedule(empty)
-    print("schedules : ", schedules.schedules[0].date)
+    print("schedules : ", schedules.schedules[0].movies)
 
 def run():
     print("Run")
