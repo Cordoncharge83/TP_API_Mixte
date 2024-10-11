@@ -1,32 +1,47 @@
 syntax = "proto3";
 
 service Booking {
-    rpc GetBookingForUser(UserId) returns (stream BookingData) {}
-    rpc AddBookingByUser(UserId) returns (BookingData) {}
-    rpc GetMovieAtDate(Date) returns (stream MovieData) {}
+    rpc GetAllBookings(Void) returns (AllBookings) {}
+    rpc GetBookingForUser(UserId) returns (BookingsUser) {}
+    rpc AddBookingByUser(EntryAddBooking) returns (BookingsUser) {}
+    rpc GetMovieAtDate(DateB) returns (ScheduleB) {}
+}
+
+message EntryAddBooking {
+    UserId user_id = 1;
+    NewMovie new_movie = 2;
 }
 
 message UserId {
     string id = 1;
 }
 
-message BookingData {
-    string userid = 1;
-    repeated DateInfo dates = 2;
+message AllBookings {
+    repeated BookingsUser bookings = 1;
 }
 
-message DateInfo {
+message BookingsUser {
+    string userid = 1;
+    repeated DateItem dates = 2;
+}
+
+message DateItem {
     string date = 1;
     repeated string movies = 2;
 }
 
-message Date {
+message NewMovie {
+    string date = 1;
+    string movieid = 2;
+}
+
+message ScheduleB {
+    string date = 1;
+    repeated string movies = 2;
+}
+
+message DateB {
     string date = 1;
 }
 
-message MovieData {
-    string title = 1;
-    float rating = 2;
-    string director = 3;
-    string id = 4;
-}
+message Void {}
