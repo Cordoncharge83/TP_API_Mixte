@@ -5,7 +5,7 @@ import showtime_pb2_grpc
 import booking_pb2
 import booking_pb2_grpc
 import json
-
+from google.protobuf.json_format import MessageToJson
 class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def __init__(self):
@@ -13,8 +13,9 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
             self.db = json.load(jsf)["bookings"]
     
     def GetBookingForUser(self, request, context):
+        req = json.loads(MessageToJson(request))
         for booking in self.db : 
-            if booking["userid"] == request.id :
+            if booking["userid"] == req.id :
                 print("Booking Found !")
                 return booking_pb2.BookingData(userid = booking["userid"], dates = booking["dates"] )
         return booking_pb2.BookingData(userid = "", dates = "" )
