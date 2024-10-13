@@ -1,6 +1,7 @@
 from ariadne import graphql_sync, make_executable_schema, load_schema_from_path, ObjectType, QueryType, MutationType
 from flask import Flask, request, jsonify,make_response
 
+from google.protobuf.json_format import MessageToDict
 import resolvers as r
 import grpc
 from concurrent import futures
@@ -43,21 +44,31 @@ def graphql_server():
 
 def get_booking_for_user(stub, user_id):
     bookings = stub.GetBookingForUser(user_id)
-    print("Bookings : ", bookings)
+    print("Bookings : ", MessageToDict(bookings))
+
+def get_all_bookings(stub):
+    empty = booking_pb2.Void()
+    bookings = stub.GetAllBookings(empty)
+    print("Bookings : ", MessageToDict(bookings))
+
+def get_booking_at(stub, date):
+    bookings = stub.GetMovieAtDate(date)
+    print("Bookings : ", MessageToDict(bookings))
 
 def run():
     print("Run")
-    with grpc.insecure_channel('localhost:3002') as channel:
+    with grpc.insecure_channel('localhost:3001') as channel:
         print("Channel loaded")
         stub = booking_pb2_grpc.BookingStub(channel)
 
-        print("-------------- GetUserId --------------")
-        user = booking_pb2.UserId(id="dwight_schrute")
-        print("user loaded : ", user.id)
-        user_id = user.id
-        print("-------------- GetBookingForUser --------------")
-        get_booking_for_user(stub, user_id)
-        
+        user_id = booking_pb2.UserId(id="chris_rivers")
+        # print("-------------- GetBookingForUser --------------")
+        # get_booking_for_user(stub, user_id)
+        # print("-------------- GetAllBookings --------------")
+        # get_all_bookings(stub)
+        print("-------------- GetScheduleDate --------------")
+        date = booking_pb2.DateB(date="20151130")
+        get_booking_at(stub, date)
 
     channel.close()
     

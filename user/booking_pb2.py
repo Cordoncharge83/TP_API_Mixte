@@ -24,23 +24,31 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rbooking.proto\"\x14\n\x06UserId\x12\n\n\x02id\x18\x01 \x01(\t\"7\n\x0b\x42ookingData\x12\x0e\n\x06userid\x18\x01 \x01(\t\x12\x18\n\x05\x64\x61tes\x18\x02 \x03(\x0b\x32\t.DateInfo\"(\n\x08\x44\x61teInfo\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\x12\x0e\n\x06movies\x18\x02 \x03(\t\"\x14\n\x04\x44\x61te\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\"H\n\tMovieData\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0e\n\x06rating\x18\x02 \x01(\x02\x12\x10\n\x08\x64irector\x18\x03 \x01(\t\x12\n\n\x02id\x18\x04 \x01(\t2\x8f\x01\n\x07\x42ooking\x12.\n\x11GetBookingForUser\x12\x07.UserId\x1a\x0c.BookingData\"\x00\x30\x01\x12+\n\x10\x41\x64\x64\x42ookingByUser\x12\x07.UserId\x1a\x0c.BookingData\"\x00\x12\'\n\x0eGetMovieAtDate\x12\x05.Date\x1a\n.MovieData\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rbooking.proto\"I\n\x0f\x45ntryAddBooking\x12\x18\n\x07user_id\x18\x01 \x01(\x0b\x32\x07.UserId\x12\x1c\n\tnew_movie\x18\x02 \x01(\x0b\x32\t.NewMovie\"\x14\n\x06UserId\x12\n\n\x02id\x18\x01 \x01(\t\".\n\x0b\x41llBookings\x12\x1f\n\x08\x62ookings\x18\x01 \x03(\x0b\x32\r.BookingsUser\"8\n\x0c\x42ookingsUser\x12\x0e\n\x06userid\x18\x01 \x01(\t\x12\x18\n\x05\x64\x61tes\x18\x02 \x03(\x0b\x32\t.DateItem\"(\n\x08\x44\x61teItem\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\x12\x0e\n\x06movies\x18\x02 \x03(\t\")\n\x08NewMovie\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\x12\x0f\n\x07movieid\x18\x02 \x01(\t\")\n\tScheduleB\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\x12\x0e\n\x06movies\x18\x02 \x03(\t\"\x15\n\x05\x44\x61teB\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\"\x06\n\x04Void2\xc0\x01\n\x07\x42ooking\x12\'\n\x0eGetAllBookings\x12\x05.Void\x1a\x0c.AllBookings\"\x00\x12-\n\x11GetBookingForUser\x12\x07.UserId\x1a\r.BookingsUser\"\x00\x12\x35\n\x10\x41\x64\x64\x42ookingByUser\x12\x10.EntryAddBooking\x1a\r.BookingsUser\"\x00\x12&\n\x0eGetMovieAtDate\x12\x06.DateB\x1a\n.ScheduleB\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'booking_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_USERID']._serialized_start=17
-  _globals['_USERID']._serialized_end=37
-  _globals['_BOOKINGDATA']._serialized_start=39
-  _globals['_BOOKINGDATA']._serialized_end=94
-  _globals['_DATEINFO']._serialized_start=96
-  _globals['_DATEINFO']._serialized_end=136
-  _globals['_DATE']._serialized_start=138
-  _globals['_DATE']._serialized_end=158
-  _globals['_MOVIEDATA']._serialized_start=160
-  _globals['_MOVIEDATA']._serialized_end=232
-  _globals['_BOOKING']._serialized_start=235
-  _globals['_BOOKING']._serialized_end=378
+  _globals['_ENTRYADDBOOKING']._serialized_start=17
+  _globals['_ENTRYADDBOOKING']._serialized_end=90
+  _globals['_USERID']._serialized_start=92
+  _globals['_USERID']._serialized_end=112
+  _globals['_ALLBOOKINGS']._serialized_start=114
+  _globals['_ALLBOOKINGS']._serialized_end=160
+  _globals['_BOOKINGSUSER']._serialized_start=162
+  _globals['_BOOKINGSUSER']._serialized_end=218
+  _globals['_DATEITEM']._serialized_start=220
+  _globals['_DATEITEM']._serialized_end=260
+  _globals['_NEWMOVIE']._serialized_start=262
+  _globals['_NEWMOVIE']._serialized_end=303
+  _globals['_SCHEDULEB']._serialized_start=305
+  _globals['_SCHEDULEB']._serialized_end=346
+  _globals['_DATEB']._serialized_start=348
+  _globals['_DATEB']._serialized_end=369
+  _globals['_VOID']._serialized_start=371
+  _globals['_VOID']._serialized_end=377
+  _globals['_BOOKING']._serialized_start=380
+  _globals['_BOOKING']._serialized_end=572
 # @@protoc_insertion_point(module_scope)

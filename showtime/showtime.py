@@ -3,6 +3,7 @@ from concurrent import futures
 import showtime_pb2
 import showtime_pb2_grpc
 import json
+from google.protobuf.json_format import MessageToDict
 
 class ShowtimeServicer(showtime_pb2_grpc.ShowtimeServicer):
 
@@ -11,19 +12,20 @@ class ShowtimeServicer(showtime_pb2_grpc.ShowtimeServicer):
             self.db = json.load(jsf)["schedule"]
     
     def GetSchedule(self,request,context):
+        """Return the list of the schedule """
         return showtime_pb2.AllSchedule(schedules=self.db)
     
     def GetMoviesByDate(self,request,context):
+        """Return the schhedule available at the date request.date"""
         for schedule in self.db:
             if schedule["date"] == request.date:
-                print("date trouvée : ", request.date)
                 var = showtime_pb2.Schedule(date=schedule["date"],movies=schedule["movies"])
-                print("movies : ", schedule["movies"])
                 return var
         return showtime_pb2.Schedule(date="",movies=[])
     
 
 def serve():
+    """Launch the server"""
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     showtime_pb2_grpc.add_ShowtimeServicer_to_server(ShowtimeServicer(), server)
     server.add_insecure_port('[::]:3002')
