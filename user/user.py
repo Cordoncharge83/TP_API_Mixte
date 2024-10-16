@@ -8,6 +8,8 @@ from concurrent import futures
 import booking_pb2
 import booking_pb2_grpc
 import json
+import sys
+
 # CALLING GraphQL requests
 type_defs = load_schema_from_path('user.graphql')
 query = QueryType()
@@ -20,8 +22,11 @@ schema = make_executable_schema(type_defs, movie, query)
 
 app = Flask(__name__)
 
-PORT = 3004
+PORT = 3003
 HOST = '0.0.0.0'
+
+BOOKING_PATH="http://localhost:3201"
+MOVIE_PATH="http://localhost:3200"
 
 # root message
 @app.route("/", methods=['GET'])
@@ -92,5 +97,9 @@ def run():
     
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))
-   # app.run(host=HOST, port=PORT)
-   run()
+   if len(sys.argv) > 1 and sys.argv[1] == "docker":
+      print("Image loaded with docker")
+      BOOKING_PATH = "http://booking:3001"
+      MOVIE_PATH = "http://movie:3000"
+   app.run(host=HOST, port=PORT)
+#    run()
