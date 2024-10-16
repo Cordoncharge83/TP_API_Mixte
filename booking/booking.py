@@ -20,7 +20,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
         
 
     def GetBookingForUser(self, request, context):
-        req = json.loads(MessageToJson(request))
+        req = json.loads(MessageToDict(request))
         for booking in self.db : 
             if booking["userid"] == req.id :
                 print("Booking Found !")
