@@ -30,7 +30,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
     def GetBookingForUser(self, request, context):
         """Return the bookings made by the user request.id"""
         for booking in self.db : 
-            if booking["userid"] == req.id :
+            if booking["userid"] == request.id :
                 print("Booking Found !")
                 return booking_pb2.BookingsUser(userid = booking["userid"], dates = booking["dates"] )
         return booking_pb2.BookingsUser(userid = "", dates = "" )
