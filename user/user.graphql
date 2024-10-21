@@ -1,7 +1,7 @@
 type Query {
   get_movies_per_rating: [Movie]
   get_movies_available_at_date(_date: String!): [Movie]
-  get_booking_made(_username: String!): [Booking]
+  get_booking_made(_userid: String!): Booking
 }
 
 type Mutation {
