@@ -25,7 +25,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
                 dateItem = booking_pb2.DateItem(date=date["date"],movies=date["movies"])
                 bookingsUser.dates.append(dateItem)
             res.bookings.append(bookingsUser)
-        print("res : ", MessageToDict(res), "\n\n")
+        print("All bookings were found")
         return res 
         
 
@@ -39,7 +39,6 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def GetMovieAtDate(self,request,context):
         """Return the movies available at the date request.date"""
-        print("Je suis ici")
         with grpc.insecure_channel(PATH_TIMES) as channel:
             stub = showtime_pb2_grpc.ShowtimeStub(channel)
             date = showtime_pb2.Date(date=request.date)
@@ -137,6 +136,6 @@ def run():
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == "docker":
       print("Image loaded with docker")
-      PATH_TIMES = "http://showtime:3002"
+      PATH_TIMES = "showtime:3002"
     serve()
     # run()
