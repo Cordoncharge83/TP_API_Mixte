@@ -8,16 +8,20 @@ from concurrent import futures
 import booking_pb2
 import booking_pb2_grpc
 import json
+import requests
 import sys
 
 # CALLING GraphQL requests
 type_defs = load_schema_from_path('user.graphql')
 query = QueryType()
+mutation = MutationType()
 movie = ObjectType('Movie')
 actor = ObjectType('Actor')
 query.set_field('get_movies_per_rating', r.get_movies_per_ratings)
-#query.set_field('get_movies_available_at_date', r.get_movies_available_at_date)
+query.set_field('get_movies_available_at_date',r.get_movies_available_at_date)
+query.set_field('get_booking_made',r.get_booking_made)
 
+mutation.set_field('book_the_movie', r.book_the_movie)
 schema = make_executable_schema(type_defs, movie, query)
 
 app = Flask(__name__)
@@ -26,7 +30,7 @@ PORT = 3003
 HOST = '0.0.0.0'
 
 BOOKING_PATH="http://localhost:3201"
-MOVIE_PATH="http://localhost:3200"
+MOVIE_PATH="http://localhost:3000"
 
 # root message
 @app.route("/", methods=['GET'])
@@ -49,7 +53,7 @@ def graphql_server():
 
 def get_booking_for_user(stub, user_id):
     bookings = stub.GetBookingForUser(user_id)
-    print("Bookings : ", MessageToDict(bookings))
+    return MessageToDict(bookings)
 
 def get_all_bookings(stub):
     empty = booking_pb2.Void()
@@ -59,16 +63,16 @@ def get_all_bookings(stub):
 
 def get_booking_at(stub, date):
     bookings = stub.GetMovieAtDate(date)
-    print("Bookings : ", MessageToDict(bookings))
+    return MessageToDict(bookings)
 
 def add_booking(stub, booking_user):
     bookings = stub.AddBookingByUser(booking_user)
-    print("Bookings : ", MessageToDict(bookings))
+    return MessageToDict(bookings)
 
 def run():
     """This was made to test the service booking"""
     print("Run")
-    with grpc.insecure_channel('localhost:3001') as channel:
+    with grpc.insecure_channel(BOOKING_PATH) as channel:
         print("Channel loaded")
         stub = booking_pb2_grpc.BookingStub(channel)
 
@@ -97,8 +101,12 @@ def run():
     
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))
+   app.run(host=HOST, port=PORT)
+   #run()
    if len(sys.argv) > 1 and sys.argv[1] == "docker":
       print("Image loaded with docker")
+      r.BOOKING_PATH = "http://booking:3001"
+      r.MOVIE_PATH = "http://movie:3000"
       BOOKING_PATH = "http://booking:3001"
       MOVIE_PATH = "http://movie:3000"
    app.run(host=HOST, port=PORT)

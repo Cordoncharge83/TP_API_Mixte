@@ -1,5 +1,9 @@
 import json
 import requests
+import grpc
+import booking_pb2
+import booking_pb2_grpc
+from google.protobuf.json_format import MessageToDict
 
 MOVIE_PATH = "http://localhost:3001"
 BOOKING_PATH = "http://localhost:3002"
@@ -15,6 +19,7 @@ body_movies_per_rating = """{
         rating
     }
 }"""
+
 def get_movies_per_ratings(_,info):
    """This function will get all the movies available sorted by rating"""
    req = requests.request("POST", MOVIE_PATH +"/graphql",json={"query": body_movies_per_rating})
@@ -24,38 +29,44 @@ def get_movies_per_ratings(_,info):
       return list_movies
 
 
-# def get_movies_available_at_date(_,info,date):   
-#    """This function shows what are the movies (their name) available at the date date"""
-#    # We get the ids of the movies available
-#    req = requests.request("GET", BOOKING_PATH + f"/movies_at_the_date/{date}")
-#    if req.status_code==200:
-#       list_name = []
-#       for movieid in req.json()["movies"]:
-#          list_name.append(movieid)
-#       print(list_name)
-#       return(list_name)
-   
-# def book_the_movie(): 
-#    ## TO DO : Voir si ça marche si l'utilisateur n'est pas dans la base de données initialisement 
-#    if request.args:
-#       """This function books the movie name moviename for the user username"""
-#       # We get the informations we want
-#       request_json = request.get_json()
-#       moviename, date, username = request_json["moviename"], request_json["date"],request_json["username"]
-#       # We need to convert the moviename into a movie_id
-#       req = requests.request("GET", MOVIE_PATH + "/movieid_linked_movietitle")
-#       if req.status_code == 200:
-#          dict_id_to_name = req.json()
-#          # We seek the id corresponding to the title moviename
-#          for key in dict_id_to_name.keys():
-#             if moviename == dict_id_to_name[key]:
-#                # The id of the movie is key
-#                new_movie = {"date":date,"movieid":key}
-#                req2 = requests.request("POST",BOOKING_PATH + f"/bookings/{convert_username_id(username)}",
-#                                        params=new_movie)
-#                if req2.status_code==200:
-#                   return make_response(render_template('booking_made.html',bodytext=moviename,username=username),200)
-#                else: 
-#                   return make_response({"message":"We couldn't book the date, Sadge :'("},205)
-#       return make_response({"error": "Bad argument"},400)
-#    return make_response({"error":"Bad argument"},400)
+def get_movies_available_at_date(_,info,_date):
+    """This method returns all movies available at a chosen date request.date"""
+    with grpc.insecure_channel(BOOKING_PATH) as channel:
+            print("Channel loaded")
+            stub = booking_pb2_grpc.BookingStub(channel)
+            date = booking_pb2.DateB(date= _date)
+            bookings = stub.GetMovieAtDate(date)
+            res = MessageToDict(bookings)
+    return res
+
+def get_booking_made(_,info,_userid):
+    """This method returns the bookings made by the user request.id"""
+    with grpc.insecure_channel(BOOKING_PATH) as channel:
+            print("Channel loaded")
+            stub = booking_pb2_grpc.BookingStub(channel)
+            user_id = booking_pb2.UserId(_userid)
+            print("-------------- GetBookingForUser --------------")
+            bookings = stub.GetBookingForUser(user_id)
+            res=  MessageToDict(bookings)
+    return res
+
+
+def book_the_movie(_,info,_userid,_date,_movieid):
+   """This method allows the user to book a movie session"""
+   with grpc.insecure_channel(BOOKING_PATH) as channel:
+            stub = booking_pb2_grpc.BookingStub(channel)
+                
+            # Create the EntryAddBooking message
+            booking_request = booking_pb2.EntryAddBooking(
+            user_id=booking_pb2.UserId(id=_userid),
+            new_movie=booking_pb2.NewMovie(
+                        date=_date,
+                        movieid=_movieid
+                    )
+                )
+                
+            bookings = stub.AddBookingByUser(booking_request)
+            result =  MessageToDict(bookings)
+        
+            
+            return result
