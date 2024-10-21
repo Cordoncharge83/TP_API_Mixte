@@ -6,7 +6,9 @@ import booking_pb2
 import booking_pb2_grpc
 import json
 from google.protobuf.json_format import MessageToDict
+import sys
 
+PATH_TIMES:str = 'localhost:3002'
 class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def __init__(self):
@@ -37,7 +39,8 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def GetMovieAtDate(self,request,context):
         """Return the movies available at the date request.date"""
-        with grpc.insecure_channel('localhost:3002') as channel:
+        print("Je suis ici")
+        with grpc.insecure_channel(PATH_TIMES) as channel:
             stub = showtime_pb2_grpc.ShowtimeStub(channel)
             date = showtime_pb2.Date(date=request.date)
             schedule = get_schedule_by_date(stub, date)
@@ -48,7 +51,7 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
         """Add a booking for the user request.user_id if it is possible"""
         # Firstly we check if the movie is available at the date request.date
         # We get the movies wich will be projected at the date request.date
-        with grpc.insecure_channel('localhost:3002') as channel:
+        with grpc.insecure_channel(PATH_TIMES) as channel:
             stub = showtime_pb2_grpc.ShowtimeStub(channel)
             date = showtime_pb2.Date(date=request.new_movie.date)
             schedule = get_schedule_by_date(stub, date)
@@ -115,22 +118,25 @@ def get_all_schedule(stub):
     schedules = stub.GetSchedule(empty)
     print("schedules : ", schedules.schedules[0].movies)
 
-# def run():
-#     """Code made to test the showtime service"""
-#     print("Run")
-#     with grpc.insecure_channel('localhost:3002') as channel:
-#         print("Channel loaded")
-#         stub = showtime_pb2_grpc.ShowtimeStub(channel)
+def run():
+    """Code made to test the showtime service"""
+    print("Run")
+    with grpc.insecure_channel('localhost:3002') as channel:
+        print("Channel loaded")
+        stub = showtime_pb2_grpc.ShowtimeStub(channel)
 
-#         print("-------------- GetDateSchedule --------------")
-#         date = showtime_pb2.Date(date="20151131")
-#         print("date loaded : ", date.date)
-#         print(get_schedule_by_date(stub, date).movies)
-#         print("-------------- GetAllSchedule --------------")
-#         get_all_schedule(stub)
+        print("-------------- GetDateSchedule --------------")
+        date = showtime_pb2.Date(date="20151131")
+        print("date loaded : ", date.date)
+        print(get_schedule_by_date(stub, date).movies)
+        print("-------------- GetAllSchedule --------------")
+        get_all_schedule(stub)
 
-#     channel.close()
+    channel.close()
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == "docker":
+      print("Image loaded with docker")
+      PATH_TIMES = "http://showtime:3002"
     serve()
     # run()

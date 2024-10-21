@@ -7,24 +7,30 @@ import grpc
 from concurrent import futures
 import booking_pb2
 import booking_pb2_grpc
-import user_pb2
-import user_pb2_grpc
 import json
 import requests
+import sys
+
 # CALLING GraphQL requests
 type_defs = load_schema_from_path('user.graphql')
 query = QueryType()
+mutation = MutationType()
 movie = ObjectType('Movie')
 actor = ObjectType('Actor')
 query.set_field('get_movies_per_rating', r.get_movies_per_ratings)
-#query.set_field('get_movies_available_at_date', r.get_movies_available_at_date)
+query.set_field('get_movies_available_at_date',r.get_movies_available_at_date)
+query.set_field('get_booking_made',r.get_booking_made)
 
+mutation.set_field('book_the_movie', r.book_the_movie)
 schema = make_executable_schema(type_defs, movie, query)
 
 app = Flask(__name__)
 
-PORT = 3004
+PORT = 3003
 HOST = '0.0.0.0'
+
+BOOKING_PATH="http://localhost:3201"
+MOVIE_PATH="http://localhost:3000"
 
 # root message
 @app.route("/", methods=['GET'])
@@ -44,75 +50,6 @@ def graphql_server():
                     )
     status_code = 200 if success else 400
     return jsonify(result), status_code
-
-class UserServicer (user_pb2_grpc.UserServicer):
-    
-    def __init__(self):
-        with open('{}/data/users.json'.format("."), "r") as jsf:
-            self.db = json.load(jsf)["users"]
-            
-    def GetBookingForUser(self, request, context):
-        """This method returns the bookings made by the user request.id"""
-        id = request.id
-        with grpc.insecure_channel('localhost:3001') as channel:
-            print("Channel loaded")
-            stub = booking_pb2_grpc.BookingStub(channel)
-            user_id = booking_pb2.UserId(id)
-            print("-------------- GetBookingForUser --------------")
-            res = get_booking_for_user(stub, user_id)
-        return res
-    
-    def GetMoviesPerRating(self, request, context):
-        """This method returns all available movies sorted by their rating"""
-        query = """ 
-            { 
-            movies_sorted_by_rate{
-                id
-                title
-                rating
-            }
-            } 
-            """
-        response = requests.post("http://localhost:3000/graphql",json={'query': query})
-        print("response status code: ", response.status_code) 
-        if response.status_code == 200: 
-            print("response : ", response.content) 
-    
-    def GetMovieAtDate(self, request, context):
-        """This method returns all movies available at a chosen date request.date"""
-        with grpc.insecure_channel('localhost:3001') as channel:
-            print("Channel loaded")
-            stub = booking_pb2_grpc.BookingStub(channel)
-            date = booking_pb2.DateB(date= request.date)
-            res = get_booking_at(stub, date)
-        return res
-    
-    def BookMovie(self, request, context):
-        """This method allows the user to book a movie session"""
-        with grpc.insecure_channel('localhost:3001') as channel:
-                stub = booking_pb2_grpc.BookingStub(channel)
-                
-                # Create the EntryAddBooking message
-                booking_request = booking_pb2.EntryAddBooking(
-                    user_id=booking_pb2.UserId(id=request.username),
-                    new_movie=booking_pb2.NewMovie(
-                        date=request.date,
-                        movieid=request.movieid
-                    )
-                )
-                
-                # Use the add_booking function
-                result = add_booking(stub, booking_request)
-                
-                # Check if the booking was successful
-                if result and 'userid' in result:
-                    return user_pb2.Status(booking_status="Booking successful")
-                else:
-                    return user_pb2.Status(booking_status="Booking failed")
-        
-        
-        
-        
 
 def get_booking_for_user(stub, user_id):
     bookings = stub.GetBookingForUser(user_id)
@@ -135,7 +72,7 @@ def add_booking(stub, booking_user):
 def run():
     """This was made to test the service booking"""
     print("Run")
-    with grpc.insecure_channel('localhost:3001') as channel:
+    with grpc.insecure_channel(BOOKING_PATH) as channel:
         print("Channel loaded")
         stub = booking_pb2_grpc.BookingStub(channel)
 
@@ -166,3 +103,11 @@ if __name__ == "__main__":
    print("Server running in port %s"%(PORT))
    app.run(host=HOST, port=PORT)
    #run()
+   if len(sys.argv) > 1 and sys.argv[1] == "docker":
+      print("Image loaded with docker")
+      r.BOOKING_PATH = "http://booking:3001"
+      r.MOVIE_PATH = "http://movie:3000"
+      BOOKING_PATH = "http://booking:3001"
+      MOVIE_PATH = "http://movie:3000"
+   app.run(host=HOST, port=PORT)
+#    run()

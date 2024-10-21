@@ -1,6 +1,7 @@
-FROM python:3.8-alpine
+FROM python:3.9-alpine
 WORKDIR /app
 COPY requirements.txt /app
 RUN pip install -r requirements.txt
 ADD . /app/
-CMD ["python","-u","showtime.py"]
+EXPOSE 3002
+CMD ["python","-u","showtime.py","docker"]
